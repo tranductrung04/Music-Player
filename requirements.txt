@@ -1,1 +1,6 @@
-flet
+assemblyai==0.34.0
+flet==0.24.1
+fletcarousel==0.0.14
+pytubefix==8.2.0
+Requests==2.32.3
+ytmusicapi==1.8.0
