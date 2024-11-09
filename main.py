@@ -1,12 +1,12 @@
 from flet import *
 import os
 
-from resource.homescreen import HomeScreen
-from resource.searchscreen import SearchScreen
-from resource.libraryscreen import LibraryScreen
-from resource.playscreen import PlayScreen
-from resource.navigationbar import _NavigationBar
-from resource.database import DataBase
+from views.homescreen import HomeScreen
+from views.searchscreen import SearchScreen
+from views.libraryscreen import LibraryScreen
+from views.playscreen import PlayScreen
+from views.navigationbar import _NavigationBar
+from data.database import DataBase
 
 
 def main(page: Page):
@@ -34,11 +34,11 @@ def main(page: Page):
         play_container.controls[0].update()
 
     page.fonts = {
-        "YouTubeSansBold": "resource/assets/fonts/YouTubeSansBold.otf",
-        "YouTubeSansLight": "resource/assets/fonts/YouTubeSansLight.otf",
-        "Roboto-Bold": "resource/assets/fonts/Roboto-Bold.ttf",
-        "Roboto-Medium": "resource/assets/fonts/Roboto-Medium.ttf",
-        "Roboto-Italic": "resource/assets/fonts/Roboto-Italic.ttf",
+        "YouTubeSansBold": "assets/fonts/YouTubeSansBold.otf",
+        "YouTubeSansLight": "assets/fonts/YouTubeSansLight.otf",
+        "Roboto-Bold": "assets/fonts/Roboto-Bold.ttf",
+        "Roboto-Medium": "assets/fonts/Roboto-Medium.ttf",
+        "Roboto-Italic": "assets/fonts/Roboto-Italic.ttf",
     }
     
     audio = Audio(src=os.getcwd(), autoplay=False)
@@ -141,4 +141,4 @@ def main(page: Page):
 
     page.add(main_stack)
 
-app(target=main, assets_dir="resource")
+app(target=main)
