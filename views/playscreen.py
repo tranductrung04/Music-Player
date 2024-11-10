@@ -382,10 +382,12 @@ class PlayScreen(Container):
 
     def getCurrentLine(self):
         nextIdx = 0
+        if self.audio_changed == True: sys.exit(0)
+        get_current_position = self.audio.get_current_position()
+
         for x in self.lyric_timestamp:
             try:
-                if self.audio_changed == True: sys.exit(0)
-                if int(x["startTimeMs"]) > self.audio.get_current_position():
+                if int(x["startTimeMs"]) > get_current_position:
                     nextIdx = self.lyric_timestamp.index(x)
                     break
 
@@ -411,7 +413,7 @@ class PlayScreen(Container):
             while not self.play_pause_icon.selected:
                 if self.audio_changed == True: sys.exit(0)
                 idx = self.getCurrentLine()
-                sleep(0.01)
+                sleep(0.1)
                 print(idx)
                 self.sync_lyric(idx)
 
