@@ -273,7 +273,7 @@ class SearchScreen(Container):
         # Unique file audio name
         root_path = os.path.join(os.getcwd(), "assets", "mymusic")
         file_name = re.split(r"\\|/", audio_path)[-1].split(".")
-        unique_filename = f"{file_name[0]} {datetime.now().strftime('%Y-%m-%d %H-%M-%S')}.{file_name[1]}"
+        unique_filename = file_name[0] + " " + datetime.now().strftime('%Y-%m-%d %H-%M-%S') + "." + file_name[1]
         dst = f"{root_path}\\{unique_filename}"
         os.rename(audio_path, dst)
         audio_path = dst
