@@ -1,11 +1,16 @@
 from flet import *
 from fletcarousel import *
-
+import os
+import re
+from datetime import datetime
+from urllib.parse import quote
+import requests
 from ytmusicapi import YTMusic
+from pytubefix import YouTube
 
 
 class HomeScreen(Container):
-    def __init__(self):
+    def __init__(self, search_screen, play_container, main_stack):
         super().__init__(
             width=290,
             height=560,
@@ -13,6 +18,11 @@ class HomeScreen(Container):
             padding=padding.only(left=10),    
             visible=True,
         )
+        self.play_container = play_container
+        self.main_stack = main_stack
+        self.search_screen = search_screen
+        self.quick_picks = self.QuickPicks()
+        self.albums_for_you =self.AlbumsForYou()
 
     def GetContainerColor(self, container_name:str):
         colors_lookup = [
@@ -275,12 +285,16 @@ class HomeScreen(Container):
 
     def QuickPicks(self):
         res = YTMusic().get_home()
+        # len(res)=2
+        # res[0]: quickPicks
+        # res[1]: albumsForYou
 
         quickPickList = Row(expand=True, scroll=ScrollMode.AUTO)
         for x in res[0]["contents"]:
             quickPickList.controls.append(
                 Container(
                     padding=padding.only(top=10, bottom=10),
+                    on_click=lambda e: self.PlayMusic(e.control.content.controls[-1].value, e.control.content.controls[0].src, e.control.content.controls[2].value, e.control.content.controls[-2].value),
                     content=Column(
                         spacing=0,
                         controls=[
@@ -288,12 +302,13 @@ class HomeScreen(Container):
                                 width=100,
                                 height=100,
                                 border_radius=15,
-                                src=x["thumbnails"][1]["url"] if len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
+                                src=x["thumbnails"][1]["url"] if "thumbnails" in x and len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
                                 fit=ImageFit.FILL,
                             ),
                             Container(height=2),
                             Text(value=x["title"], font_family="Roboto-Bold", size=12, width=100, max_lines=2),
                             Text(value=x["artists"][0]["name"] if "artists" in x and x["artists"] else "Unknown", font_family="Roboto-Medium", size=11, opacity=0.9, width=100, max_lines=2),
+                            Text(value=x["videoId"], visible=False)
                         ]
                     )
                 )
@@ -322,7 +337,7 @@ class HomeScreen(Container):
                                 width=100,
                                 height=100,
                                 border_radius=15,
-                                src=x["thumbnails"][1]["url"] if len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
+                                src=x["thumbnails"][1]["url"] if "thumbnails" in x and len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
                                 fit=ImageFit.FILL,
                             ),
                             Container(height=2),
@@ -340,6 +355,83 @@ class HomeScreen(Container):
                 albumList,
             ]
         )
+
+    def ms_to_minutes(self, ms):
+        # Convert milliseconds to total seconds
+        total_seconds = ms // 1000
+        
+        # Get minutes and remaining seconds
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        
+        # Format minutes and seconds with leading zeroes if needed
+        return f"{minutes}:{seconds:02}"
+
+    def PlayMusic(self, videoId, thumbnail, title, artist):
+        
+        # Download the audio from youtube
+        videoUrl = f"https://youtube.com/watch?v={videoId}"
+        yt = YouTube(videoUrl)
+        stream = yt.streams.filter(only_audio=True)
+        audio_path = stream.get_audio_only().download(output_path="assets/mymusic")
+        
+        # Unique file audio name
+        root_path = os.path.join(os.getcwd(), "assets", "mymusic")
+        file_name = re.split(r"\\|/", audio_path)[-1].split(".")
+        unique_filename = file_name[0] + " " + datetime.now().strftime('%Y-%m-%d %H-%M-%S') + "." + file_name[1]
+        dst = f"{root_path}\\{unique_filename}"
+        os.rename(audio_path, dst)
+        audio_path = dst
+
+        # Remove the old audio and play_screen
+        while len(self.main_stack.controls) > 1:
+            self.main_stack.controls.pop(-1)
+        self.main_stack.update()
+
+        # Update the audio and the play_screen
+        self.play_container.controls[0].audio = Audio(src=audio_path, autoplay=False)
+        self.play_container.controls[0].thumbnail_src = thumbnail
+        self.play_container.controls[0].title = title
+        self.play_container.controls[0].artist = artist
+        self.play_container.controls[0].duration.value = ""
+        self.play_container.controls[0].audio_path = audio_path
+        self.play_container.controls[0].favorite_icon.selected = False
+        self.play_container.controls[0].play_pause_icon.selected = False
+        self.play_container.controls[0].lyric_icon.selected = False
+       
+        # Update the lyrics
+        encoded_text = quote(title)
+
+        # URL of the JSON data
+        url = f"https://lyrics-api.boidu.dev/getLyrics?s={encoded_text}"
+        self.play_container.controls[0].lyrics = url
+
+        try:
+            response = requests.get(url).json()
+            lyrics = response["lyrics"]
+            
+            self.play_container.controls[0].duration.value = str(self.ms_to_minutes(int(lyrics[-1]["startTimeMs"])))
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching data: {e}")
+
+        # Update the mini_play
+        self.main_stack.controls[0].controls[0].content.controls[3].controls[0].content.controls[4].on_click = self.play_container.controls[0].toggle_play_pause_icon
+        self.play_container.controls[0].update_mini_play()
+        self.main_stack.update()
+
+        # Appending the audio and the play_screen
+        self.main_stack.controls.append(self.play_container.controls[0].audio)
+        self.main_stack.controls.append(self.play_container)
+        self.main_stack.update()
+
+        # Play music
+        if not audio_path == "":
+            print("Your download is finished!")
+
+            # Enable the PlayScreen
+            self.play_container.controls[0].visible = True
+            self.play_container.controls[0].update()
+            self.main_stack.update()
 
     def build(self):
         self.content = Column(
@@ -392,12 +484,8 @@ class HomeScreen(Container):
                                     ]
                                 )
                             ),
-                            Container(
-                                content=self.QuickPicks()
-                            ),
-                            Container(
-                                content=self.AlbumsForYou()
-                            ),
+                            self.quick_picks,
+                            self.albums_for_you,
                             Container(height=30),
                             Divider(height=10, color=colors.WHITE10),
                         ],

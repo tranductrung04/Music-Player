@@ -108,8 +108,9 @@ def main(page: Page):
         ]
     )
 
-    home_screen = HomeScreen()
     search_screen = SearchScreen(play_container, main_stack, audio)
+    # page.add(search_screen.progress_bar)
+    home_screen = HomeScreen(search_screen, play_container, main_stack)
     _navigation_bar = _NavigationBar(home_screen, search_screen, library_screen)
 
     main_container.controls.append(           

@@ -8,7 +8,7 @@ from ytmusicapi import YTMusic
 from pytubefix import YouTube
 import assemblyai as aai
 
-from views.playscreen import PlayScreen
+from views.playscreen import *
 
 
 class SearchScreen(Container):
