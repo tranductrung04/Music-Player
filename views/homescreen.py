@@ -21,6 +21,7 @@ class HomeScreen(Container):
         self.play_container = play_container
         self.main_stack = main_stack
         self.search_screen = search_screen
+        self.progress_bar = self._ProgressBar()
         self.quick_picks = self.QuickPicks()
         self.albums_for_you =self.AlbumsForYou()
 
@@ -71,6 +72,14 @@ class HomeScreen(Container):
                     Divider(height=5, color="transparent"),
                 ]
             )
+        )
+
+    def _ProgressBar(self):
+        return ProgressBar(
+            width=self.width-30,
+            color="red",
+            bar_height=3,
+            visible=False,
         )
 
     def ChangeThemeIcon(self):
@@ -368,7 +377,12 @@ class HomeScreen(Container):
         return f"{minutes}:{seconds:02}"
 
     def PlayMusic(self, videoId, thumbnail, title, artist):
-        
+        print("Clicked")
+
+        # Enable ProgressBar
+        self.progress_bar.visible = True
+        self.update()
+
         # Download the audio from youtube
         videoUrl = f"https://youtube.com/watch?v={videoId}"
         yt = YouTube(videoUrl)
@@ -428,6 +442,10 @@ class HomeScreen(Container):
         if not audio_path == "":
             print("Your download is finished!")
 
+            # Disable ProgressBar
+            self.progress_bar.visible = False
+            self.update()
+
             # Enable the PlayScreen
             self.play_container.controls[0].visible = True
             self.play_container.controls[0].update()
@@ -449,6 +467,7 @@ class HomeScreen(Container):
                         ]
                     )
                 ),
+                self.progress_bar,
                 Container(
                     expand=True,
                     content=Column(
