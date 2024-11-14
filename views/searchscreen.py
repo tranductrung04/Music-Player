@@ -254,10 +254,10 @@ class SearchScreen(Container):
         print("Clicked")
 
         # Delete old audio file in mymusic
-        path = os.path.join(os.getcwd(),"assets", "mymusic")
-        for file in os.listdir(path):
-            os.remove(os.path.join(path,file))
-        print("Cleaned mymusic")
+        # path = os.path.join(os.getcwd(),"assets", "mymusic")
+        # for file in os.listdir(path):
+        #     os.remove(os.path.join(path,file))
+        # print("Cleaned mymusic")
 
         # Enable the progress_bar
         self.progress_bar.visible = True

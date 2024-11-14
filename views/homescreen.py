@@ -300,28 +300,29 @@ class HomeScreen(Container):
 
         quickPickList = Row(expand=True, scroll=ScrollMode.AUTO)
         for x in res[0]["contents"]:
-            quickPickList.controls.append(
-                Container(
-                    padding=padding.only(top=10, bottom=10),
-                    on_click=lambda e: self.PlayMusic(e.control.content.controls[-1].value, e.control.content.controls[0].src, e.control.content.controls[2].value, e.control.content.controls[-2].value),
-                    content=Column(
-                        spacing=0,
-                        controls=[
-                            Image(
-                                width=100,
-                                height=100,
-                                border_radius=15,
-                                src=x["thumbnails"][1]["url"] if "thumbnails" in x and len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
-                                fit=ImageFit.FILL,
-                            ),
-                            Container(height=2),
-                            Text(value=x["title"], font_family="Roboto-Bold", size=12, width=100, max_lines=2),
-                            Text(value=x["artists"][0]["name"] if "artists" in x and x["artists"] else "Unknown", font_family="Roboto-Medium", size=11, opacity=0.9, width=100, max_lines=2),
-                            Text(value=x["videoId"], visible=False)
-                        ]
+            if x:
+                quickPickList.controls.append(
+                    Container(
+                        padding=padding.only(top=10, bottom=10),
+                        on_click=lambda e: self.PlayMusic(e.control.content.controls[-1].value, e.control.content.controls[0].src, e.control.content.controls[2].value, e.control.content.controls[-2].value),
+                        content=Column(
+                            spacing=0,
+                            controls=[
+                                Image(
+                                    width=100,
+                                    height=100,
+                                    border_radius=15,
+                                    src=x["thumbnails"][1]["url"] if "thumbnails" in x and len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
+                                    fit=ImageFit.FILL,
+                                ),
+                                Container(height=2),
+                                Text(value=x["title"], font_family="Roboto-Bold", size=12, width=100, max_lines=2),
+                                Text(value=x["artists"][0]["name"] if "artists" in x and x["artists"] else "Unknown", font_family="Roboto-Medium", size=11, opacity=0.9, width=100, max_lines=2),
+                                Text(value=x["videoId"], visible=False)
+                            ]
+                        )
                     )
                 )
-            )
 
         return Column(
             spacing=0,
@@ -336,26 +337,29 @@ class HomeScreen(Container):
 
         albumList = Row(expand=True, scroll=ScrollMode.AUTO)
         for x in res[1]["contents"]:
-            albumList.controls.append(
-                Container(
-                    padding=padding.only(top=10, bottom=10),
-                    content=Column(
-                        spacing=0,
-                        controls=[
-                            Image(
-                                width=100,
-                                height=100,
-                                border_radius=15,
-                                src=x["thumbnails"][1]["url"] if "thumbnails" in x and len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
-                                fit=ImageFit.FILL,
-                            ),
-                            Container(height=2),
-                            Text(value=x["title"], font_family="Roboto-Bold", size=12, width=100, max_lines=2),
-                            Text(value=x["artists"][0]["name"] if "artists" in x and x["artists"] else "Unknown", font_family="Roboto-Medium", size=11, opacity=0.9, width=100, max_lines=2),
-                        ]
+            if x:
+                albumList.controls.append(
+                    Container(
+                        padding=padding.only(top=10, bottom=10),
+                        content=Column(
+                            spacing=0,
+                            controls=[
+                                Image(
+                                    width=100,
+                                    height=100,
+                                    border_radius=15,
+                                    src=x["thumbnails"][1]["url"] if "thumbnails" in x and len(x["thumbnails"])>1 else x["thumbnails"][0]["url"],
+                                    fit=ImageFit.FILL,
+                                ),
+                                Container(height=2),
+                                Text(value=x["title"], font_family="Roboto-Bold", size=12, width=100, max_lines=2),
+                                Text(value=x["artists"][0]["name"] if "artists" in x and x["artists"] else "Unknown", font_family="Roboto-Medium", size=11, opacity=0.9, width=100, max_lines=2),
+                            ]
+                        )
                     )
                 )
-            )
+            else:
+                print("AlbumsForYou: ", x)
 
         return Column(
             spacing=0,
@@ -489,6 +493,7 @@ class HomeScreen(Container):
                                 )
                             ),
                             Container(
+                                height=50,
                                 content=Column(
                                     controls=[
                                         self.MoodsRow(),
@@ -496,6 +501,7 @@ class HomeScreen(Container):
                                 )
                             ),
                             Container(
+                                height=350,
                                 content=Column(
                                     controls=[
                                         Text("Charts", font_family="Roboto-Bold", size=16),
@@ -503,8 +509,14 @@ class HomeScreen(Container):
                                     ]
                                 )
                             ),
-                            self.quick_picks,
-                            self.albums_for_you,
+                            Container(
+                                height=200,
+                                content=self.quick_picks
+                            ),
+                            Container(
+                                height=200,
+                                content=self.albums_for_you
+                            ),
                             Container(height=30),
                             Divider(height=10, color=colors.WHITE10),
                         ],

@@ -1,5 +1,5 @@
 assemblyai==0.34.0
-flet==0.24.1
+flet==0.23.2
 fletcarousel==0.0.14
 pytubefix==8.2.0
 Requests==2.32.3

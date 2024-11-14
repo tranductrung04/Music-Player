@@ -497,10 +497,10 @@ class Song(Container):
 
     def play_music(self):
         # Delete old audio file in mymusic
-        path = os.path.join(os.getcwd(),"assets", "mymusic")
-        for file in os.listdir(path):
-            os.remove(os.path.join(path,file))
-        print("Cleaned mymusic")
+        # path = os.path.join(os.getcwd(),"assets", "mymusic")
+        # for file in os.listdir(path):
+        #     os.remove(os.path.join(path,file))
+        # print("Cleaned mymusic")
 
         # Remove the old audio and play_screen
         while len(self.main_stack.controls) > 1:
